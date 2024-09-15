@@ -1,102 +1,21 @@
-import mysql.connector
-import tkinter as tk
-from tkinter import ttk
-from PIL import Image, ImageTk
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
-
-# This class is responsible for creating main
-# window with menu buttons, container and 4 frames for 4 different pages
-class App(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title("College Transactions")
-        self.iconbitmap("logo.ico")
-        self.geometry("990x615+175+90")
-        self.minsize(900,550)
-        self.bind('<Escape>', lambda event: self.quit())
-
-        style = ttk.Style()
-        style.configure("TButton",font=('', 11), width=20)
-        menu = ttk.Frame(self, borderwidth=4)
-        menu.pack(side='left', fill='y')
-
-        title = ttk.Label(menu, text="College Transactions", font="Helvetica 15 bold")
-        home = ttk.Button(menu, text="Home Page", command=lambda: self.show_frame(HomePage))
-        add = ttk.Button(menu, text="Data Page", command=lambda: self.show_frame(Add))
-        analyse = ttk.Button(menu, text="Analysis Page", command=lambda: self.show_frame(Analyse))
-
-        title.pack()
-        home.pack()
-        add.pack()
-        analyse.pack()
-
-        container = ttk.Frame(self)
-        container.pack(side="top", expand=True, fill="both")
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-
-        self.frames = {}
-        self.HomePage = HomePage
-        self.Add = Add
-        self.Analyse = Analyse
-
-        # first time creating frame and storing in frames list
-        for F in {HomePage, Add, Analyse}:
-            frame = F(self, container)
-            self.frames[F] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
-
-        self.show_frame(HomePage)
-
-    # simple function to lift the frame on top
-    def show_frame(self, frame):
-        self.frames[frame].tkraise()
-
-# This class only has image
-class HomePage(ttk.Frame):
-    def __init__(self, parent, container):
-        super().__init__(container)
-
-        # Importing image(in variable background), creating canvas, pack image in canvas in nw.
-        self.background = Image.open("img1.jpg").resize((948,767))
-        self.background_tk = ImageTk.PhotoImage(self.background)
-        self.canvas = tk.Canvas(self)
-        self.canvas.pack(expand=True, fill='both')
-        self.canvas.create_image(0, 0, image=self.background_tk, anchor='nw')
-        self.canvas.bind('<Configure>', self.resize_image)
-
-    # this function resizes the image according to img aspect ratio.
-    def resize_image(self, event):
-        image_ratio = 1.75
-        canvas_ratio = event.width / event.height
-
-        if canvas_ratio > image_ratio:  # canvas is wider then image
-            width = event.width
-            height = int(event.width / image_ratio)
-        else:  # canvas is narrower then image
-            height = event.height
-            width = int(event.height * image_ratio)
-
-        new_background = self.background.resize((width, height))
-        self.background_tk = ImageTk.PhotoImage(new_background)
-        self.canvas.create_image(int(event.width/2), int(event.height/2), image=self.background_tk, anchor='center')
+from imports import tk
+from imports import ttk
 
 # This is the biggest and most important part...
 # This class facilitates adding new data and showing past data
 # this data page frame is further have 2 frames (add_f1 and add_f2).pack()
 # inside add_f1 we use grid where as in add_f2 we use pack()
-class Add(ttk.Frame):
-    def __init__(self, parent, container):
+class AddPage(ttk.Frame):
+    def __init__(self, parent, container, user_id):
         super().__init__(container)
-
+        self.user_id = user_id
         add_t = ttk.Label(self, text="Add Transactions", font=('Times', '20'))
         add_t.pack()
 
         # These are placeholders for add_f1
-        courser.execute("select count(*) from entry;")
-        self.no = tk.IntVar(value=courser.fetchone()[0]+1)
+        # courser.execute("select count(*) from entry;")
+        # self.no = tk.IntVar(value=courser.fetchone()[0]+1)
+        self.no = 5
         date_value = tk.StringVar(value="dd/mm/2024")
         note_value = tk.StringVar(value="note")
         type_value = tk.StringVar(value="Category")
@@ -181,7 +100,7 @@ class Add(ttk.Frame):
         self.tree.tag_configure("colour_blue", foreground="blue")
         self.tree.tag_configure("tree_font", font='None 13')
 
-        self.show_data("select * from entry order by Date desc;")
+        # self.show_data("select * from entry order by Date desc;")
 
     # This function takes sql query and display one-by-one in tree view
     def show_data(self, query):
@@ -203,61 +122,3 @@ class Add(ttk.Frame):
         db.commit()
         self.no.set(self.no.get() + 1)
         self.show_data("select * from entry order by Date desc;")
-
-
-# This class is for analyzing the data.
-class Analyse(ttk.Frame):
-    def __init__(self, parent, container):
-        super().__init__(container)
-
-        label = ttk.Label(self, text="Analyzing Page", font=('Times', '20'))
-        frame3 = ttk.Frame(self)
-        label.pack()
-        frame3.pack()
-        dect = {
-            "food":"select Amount from entry where Type ='food' order by Date;",
-            "small entries":"select Amount from entry where Amount>-500 and Amount<500 order by Date;",
-            "all entries":"select Amount from entry order by Date;"
-        }
-        ttk.Button(frame3, command=lambda: self.clear_graph(), text="Clear Graph").pack()
-        box1 = ttk.Button(frame3, text="food", command=lambda: self.graph(dect.get("food"), "food"))
-        box2 = ttk.Button(frame3, text="small entries", command=lambda: self.graph(dect.get("small entries"),"small entries"))
-        box3 = ttk.Button(frame3, text="all entries", command=lambda: self.graph(dect.get("all entries"),"all entries"))
-        box1.pack(side='left')
-        box2.pack(side='left')
-        box3.pack(side='left')
-
-        self.fig = Figure(figsize=(7, 6), dpi=110)
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
-        self.canvas.get_tk_widget().pack(expand=True,fill='both',padx=20, pady=20)
-        self.plt = self.fig.add_subplot(111)
-
-    def clear_graph(self):
-        self.fig.clf()
-        self.plt = self.fig.add_subplot(111)
-        self.canvas.draw()
-
-    def graph(self, query, legend):
-        courser.execute(query)
-        x_axis, values = [], []
-        data = courser.fetchall()
-        x_axis = [i for i in range(len(data))]
-        for t in data: values.append(t[0])
-
-        self.plt.plot(x_axis, values, label=legend)
-        self.plt.set_title("Graph")
-        self.plt.set_ylabel("Amount")
-        self.plt.set_xlabel("Entries")
-        self.plt.legend()
-        self.canvas.draw()
-
-
-# The program starts its execution from here, connection is established with database.
-# for security purposes host, password, user and database name is removed.
-if __name__ == "__main__":
-    db = mysql.connector.connect(host='localhost', password='12345akshat', user='root', database="money")
-    courser = db.cursor()
-    if db.is_connected(): print("Connection successfully...")
-    app = App()
-    app.mainloop()
-    db.close()
