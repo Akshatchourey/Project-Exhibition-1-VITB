@@ -19,14 +19,27 @@ spent in 4 years of their college journey.
 
 ## Setup Instructions:-
 (only for programmers)
+
+Do step 1 or 2
 1. Clone the repository:
    ```sh 
    git clone git@github.com:Akshatchourey/Project-Exhibition-1-VITB.git
    cd Project-Exhibition-1-VITB
-2. Install the dependencies:
+
+2. Download zip file and unzip it...after unzip open folder:
    ```sh
-   pip install -r requirements.txt
-3. Run the application:
+   cd project Exhibition 1 VITB
+   cd app
+3. Install all the required modules one by one in your command prompt:
+   ```sh
+   pip install tk
+   pip install pillow
+   pip install numpy
+   pip install pymysql
+   pip install python-dotenv
+   pip install matplotlib
+
+4. Run the application:
    ```sh
    python CollegeTransactions.py
 
