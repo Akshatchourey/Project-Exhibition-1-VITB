@@ -1,16 +1,16 @@
 from imports import tk
 from imports import ttk
+
 from Home import HomePage
 from Add import AddPage
+from Profile import ProfilePage
 from Analyse import AnalysePage
 
 # This class is responsible for creating main
 # window with menu buttons, container and 4 frames for 4 different pages
 class App(tk.Tk):
-    def __init__(self, user_id):
+    def __init__(self, table):
         super().__init__()
-        self.user_id = user_id
-        user_id = "asdf"
         self.title("College Transactions")
         self.iconbitmap("logo.ico")
         self.geometry("990x615+175+90")
@@ -24,11 +24,13 @@ class App(tk.Tk):
 
         title = ttk.Label(menu, text="College Transactions", font="Helvetica 15 bold")
         home = ttk.Button(menu, text="Home Page", command=lambda: self.show_frame(HomePage))
+        profile = ttk.Button(menu, text="Profile Page", command=lambda: self.show_frame(ProfilePage))
         add = ttk.Button(menu, text="Data Page", command=lambda: self.show_frame(AddPage))
         analyse = ttk.Button(menu, text="Analysis Page", command=lambda: self.show_frame(AnalysePage))
 
         title.pack()
         home.pack()
+        profile.pack()
         add.pack()
         analyse.pack()
 
@@ -40,8 +42,8 @@ class App(tk.Tk):
         # first time creating frame and storing in frames list
         self.frames = {}
 
-        for F in {HomePage, AddPage, AnalysePage}:
-            frame = F(self, container, self.user_id)
+        for F in {HomePage,ProfilePage,AddPage,AnalysePage}:
+            frame = F(self, container, table)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 

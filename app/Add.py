@@ -1,21 +1,27 @@
 from imports import tk
 from imports import ttk
+from imports import database
 
+
+# courser = database().cursor()
 # This is the biggest and most important part...
 # This class facilitates adding new data and showing past data
 # this data page frame is further have 2 frames (add_f1 and add_f2).pack()
-# inside add_f1 we use grid where as in add_f2 we use pack()
+# inside add_f1 we use grid whereas in add_f2 we use pack()
 class AddPage(ttk.Frame):
-    def __init__(self, parent, container, user_id):
+    def __init__(self, parent, container, table):
         super().__init__(container)
-        self.user_id = user_id
+        self.table = table
+        self.courser = database().cursor()
         add_t = ttk.Label(self, text="Add Transactions", font=('Times', '20'))
         add_t.pack()
 
         # These are placeholders for add_f1
-        # courser.execute("select count(*) from entry;")
-        # self.no = tk.IntVar(value=courser.fetchone()[0]+1)
-        self.no = 5
+        self.courser.execute("select max(SNo) from %s;" % table)
+        # noinspection PyTypeChecker
+        temp_no = self.courser.fetchone()['max(SNo)']
+        if temp_no is None: temp_no = 0
+        self.no = tk.IntVar(value=temp_no + 1)
         date_value = tk.StringVar(value="dd/mm/2024")
         note_value = tk.StringVar(value="note")
         type_value = tk.StringVar(value="Category")
@@ -55,19 +61,19 @@ class AddPage(ttk.Frame):
         add_f2.pack()
 
         refresh = ttk.Button(add_f2, text="Refresh Data",
-                             command=lambda:self.show_data("select * from entry order by Date desc;"))
+                             command=lambda:self.show_data("select * from %s order by Date desc;"))
         refresh.pack(side='left')
 
         # different qsl commands stored in dict
         dicti = {
-            '2023': "select * from entry where YEAR(Date)=2023;",
-            '2024': "select * from entry where YEAR(Date)=2024;",
-            'Online': "select * from entry where Mode=False order by Date desc;",
-            'Offline': "select * from entry where Mode=True order by Date desc;",
-            'amount+': "select * from entry where Amount>0 order by Date desc;",
-            'amount-': "select * from entry where Amount<0 order by Date desc;",
-            'amount+desc': "select * from entry where Amount>0 order by Amount desc;",
-            'amount-desc': "select * from entry where Amount<0 order by Amount;"
+            '2023': "select * from %s where YEAR(Date)=2023;",
+            '2024': "select * from %s where YEAR(Date)=2024;",
+            'Online': "select * from %s where Mode=False order by Date desc;",
+            'Offline': "select * from %s where Mode=True order by Date desc;",
+            'amount+': "select * from %s where Amount>0 order by Date desc;",
+            'amount-': "select * from %s where Amount<0 order by Date desc;",
+            'amount+desc': "select * from %s where Amount>0 order by Amount desc;",
+            'amount-desc': "select * from %s where Amount<0 order by Amount;"
         }
         # making combo-box
         filters = ['2023','2024','Online','Offline','amount+','amount-','amount+desc','amount-desc']
@@ -83,7 +89,7 @@ class AddPage(ttk.Frame):
         type_combo.pack(side='left')
         type_combo.bind('<<ComboboxSelected>>',
                         lambda event: self.show_data(
-                            f"select * from entry where Type='{type_combo.get()}' order by Date desc;"))
+                            f"select * from %s where Type='{type_combo.get()}' order by Date desc;"))
 
         # Creating tree view(Table) and setting initial properties of it
         self.tree = ttk.Treeview(self, columns=('sno', 'date', 'note', 'category', 'amount'), show='headings', height=5)
@@ -100,14 +106,15 @@ class AddPage(ttk.Frame):
         self.tree.tag_configure("colour_blue", foreground="blue")
         self.tree.tag_configure("tree_font", font='None 13')
 
-        # self.show_data("select * from entry order by Date desc;")
+        self.show_data("select * from %s order by Date desc;")
 
     # This function takes sql query and display one-by-one in tree view
     def show_data(self, query):
         self.tree.delete(*self.tree.get_children())
-        courser.execute(query)
+        self.courser.execute(query % self.table)
+        asq = [list(row.values()) for row in self.courser.fetchall()]
         i = 1
-        for t in courser:
+        for t in asq:
             old_date = str(t[1])
             new_date = old_date[8:]+"/"+old_date[5:7]+"/"+old_date[0:4]
             row = (i, new_date, t[2], t[3], t[5])
@@ -117,8 +124,10 @@ class AddPage(ttk.Frame):
 
     # This function takes few data from placeholders of add_f1 and runs sql query for insertion.
     def add_data(self, date_value, note_value, type_value, mode_value, amount_value):
-        courser.execute(f"insert into entry values({self.no.get()},STR_TO_DATE('{date_value.get()}', '%d/%m/%Y'),"
-                        f"'{note_value.get()}','{type_value.get()}',{mode_value.get()},{amount_value.get()});")
-        db.commit()
+        insert_query1 = "insert into %s values(%s," % (self.table, self.no.get())
+        insert_query2 = ",'%s','%s',%s,%s);" % (note_value.get(), type_value.get(), mode_value.get(), amount_value.get())
+        insert_query = insert_query1 + f"STR_TO_DATE('{date_value.get()}','%d/%m/%Y')" + insert_query2
+        self.courser.execute(insert_query)
+        database().commit()
         self.no.set(self.no.get() + 1)
-        self.show_data("select * from entry order by Date desc;")
+        self.show_data("select * from %s order by Date desc;")

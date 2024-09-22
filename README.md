@@ -16,31 +16,44 @@ Any student using this application can tell how much they have
 spent in 4 years of their college journey.
 
 ## Download latest release:- 
-
-## Setup Instructions:-
+Follow setup instructions 1 or 2
 (only for programmers)
 
-Do step 1 or 2
+## Setup Instructions(1):-
+1. Download zip file (green button) and unzip it.
+
+2. Open unzipped file and to app folder.
+
+3. Install all the required modules one by one in your command prompt:
+   ```sh
+   pip install tk
+   pip install numpy
+   pip install pillow
+   pip install pymysql
+   pip install smtplib
+   pip install matplotlib
+   pip install dotenv
+   pip install python-dotenv
+
+4. Run the application "Authorization.py" normally.
+
+## Setup Instructions(2):-
 1. Clone the repository:
    ```sh 
    git clone git@github.com:Akshatchourey/Project-Exhibition-1-VITB.git
    cd Project-Exhibition-1-VITB
-
-2. Download zip file and unzip it...after unzip open folder:
+   
+2. Install the dependencies:
    ```sh
+   pip install -r requirements.txt
+   
+3. cd to desired folder:
+    ```sh
    cd project Exhibition 1 VITB
    cd app
-3. Install all the required modules one by one in your command prompt:
-   ```sh
-   pip install tk
-   pip install pillow
-   pip install numpy
-   pip install pymysql
-   pip install python-dotenv
-   pip install matplotlib
-
+   
 4. Run the application:
    ```sh
-   python CollegeTransactions.py
+   python Authorization.py
 
 ## Thank you.

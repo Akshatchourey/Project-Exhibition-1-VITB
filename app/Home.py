@@ -4,7 +4,7 @@ from imports import Image, ImageTk
 
 # This class only has image
 class HomePage(ttk.Frame):
-    def __init__(self, parent, container, user_id):
+    def __init__(self, parent, container, table):
         super().__init__(container)
 
         # Importing image(in variable background), creating canvas, pack image in canvas in nw.

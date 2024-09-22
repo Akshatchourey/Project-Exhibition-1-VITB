@@ -1,20 +1,22 @@
 from imports import ttk
 from imports import Figure
 from imports import FigureCanvasTkAgg
+from imports import database
 
 # This class is for analyzing the data.
 class AnalysePage(ttk.Frame):
-    def __init__(self, parent, container, user_id):
+    def __init__(self, parent, container, table):
         super().__init__(container)
-        self.user_id = user_id
+        self.table = table
+        self.courser = database().cursor()
         label = ttk.Label(self, text="Analyzing Page", font=('Times', '20'))
         frame3 = ttk.Frame(self)
         label.pack()
         frame3.pack()
         dect = {
-            "food":"select Amount from entry where Type ='food' order by Date;",
-            "small entries":"select Amount from entry where Amount>-500 and Amount<500 order by Date;",
-            "all entries":"select Amount from entry order by Date;"
+            "food":"select Amount from %s where Type ='food' order by Date;",
+            "small entries":"select Amount from %s where Amount>-500 and Amount<500 order by Date;",
+            "all entries":"select Amount from %s order by Date;"
         }
         ttk.Button(frame3, command=lambda: self.clear_graph(), text="Clear Graph").pack()
         box1 = ttk.Button(frame3, text="food", command=lambda: self.graph(dect.get("food"), "food"))
@@ -35,9 +37,9 @@ class AnalysePage(ttk.Frame):
         self.canvas.draw()
 
     def graph(self, query, legend):
-        courser.execute(query)
+        self.courser.execute(query % self.table)
         x_axis, values = [], []
-        data = courser.fetchall()
+        data = self.courser.fetchall()
         x_axis = [i for i in range(len(data))]
         for t in data: values.append(t[0])
 

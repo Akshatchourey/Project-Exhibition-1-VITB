@@ -282,7 +282,7 @@ if __name__ == "__main__":
     except pymysql.Error as e:
         print(f"Connection failed: {e}")
 
-    table = "van2"
+    table = "van258"
     courser = db.cursor()
     app = App()
     app.mainloop()

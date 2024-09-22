@@ -1,11 +1,14 @@
 from imports import ttk
 from imports import Image, ImageTk
+from imports import database
 
 # This class is for analyzing the data.
-class AnalysePage(ttk.Frame):
-    def __init__(self, parent, container, user_id):
-        super().__init__(container)
-        self.user_id = user_id
-        ttk.Label(self, text="Profile Page", font=('Times', '20')).pack()
-        # code here
+class ProfilePage(ttk.Frame):
 
+    def __init__(self, parent, container, table):
+        super().__init__(container)
+        self.table = table
+        self.courser = database().cursor()
+        ttk.Label(self, text="Profile Page", font=('Times', '20')).pack()
+
+        # your --- code here
