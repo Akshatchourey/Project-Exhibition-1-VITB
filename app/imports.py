@@ -2,7 +2,7 @@ import os
 import random
 import pymysql
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from smtplib import SMTP
 from dotenv import load_dotenv
 from PIL import Image, ImageTk
@@ -49,5 +49,3 @@ def switch_user(username, password):
         return 1
 def database():
     return db
-
-# pip install python-dotenv

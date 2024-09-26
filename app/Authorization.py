@@ -10,11 +10,18 @@ class Author(tk.Tk):
         self.user_id = "entry"
         self.title("Authorize yourself")
         self.geometry("500x450+175+90")
+        self.resizable(False, False)
         self.iconbitmap("logo.ico")
+
+        background_image = Image.open("img2.jpg")
+        self.background_photo = ImageTk.PhotoImage(background_image)
+        style = ttk.Style()
+        style.configure("TLabel", font=("Arial", 12))
+        style.configure("TButton", font=('', 11), width=20)
+        style.map("TButton", foreground=[("active", "white")], background=[("active", "#3498db")])
+
         container = ttk.Frame(self)
         container.pack(side="top", expand=True, fill="both")
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
 
         # first time creating frame and storing in frames list
         self.frames = {}
@@ -32,15 +39,37 @@ class Login(ttk.Frame, Author):
     def __init__(self, parent, container):
         super().__init__(container)
         self.parent = parent
-        # ttk.Label(self, text="Login", font=('Times', '20')).pack()
-        self.login_user_value = tk.StringVar(value="Vanshika")
-        self.login_pass_value = tk.StringVar(value="123456789")
+        self.login_user_value = tk.StringVar()
+        self.login_pass_value = tk.StringVar()
 
         # login --- your code
+        canvas = tk.Canvas(self, width=500, height=450)
+        canvas.pack(fill="both", expand=True)
+        canvas.create_image(0, 0, image=parent.background_photo, anchor="nw")
 
-        ttk.Button(self, text="login", command=lambda: self.click_log()).pack()
-        ttk.Button(self, text="forgot password?", command=lambda: Author.rase_frame(parent, Forgotpass)).pack()
-        ttk.Button(self, text="new account", command=lambda: Author.rase_frame(parent, Signup)).pack()
+        login_heading = ttk.Label(self, text="Login", font=("Helvetica", 20, "bold"))
+        login_heading.place(relx=0.5, rely=0.1, anchor=tk.CENTER)
+
+        login_frame = ttk.Frame(self, padding="10")
+        login_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+        username_label = ttk.Label(login_frame, text="Username:")
+        username_entry = ttk.Entry(login_frame, font=("Arial", 12), textvariable=self.login_user_value)
+        password_label = ttk.Label(login_frame, text="Password:")
+        password_entry = ttk.Entry(login_frame, font=("Arial", 12), show="*", textvariable=self.login_pass_value)
+        login_button = ttk.Button(login_frame, text="Login", command=lambda: self.click_log())
+        forgot_password_label = ttk.Button(login_frame, text="Forgot Password?",
+                                           command=lambda: Author.rase_frame(parent, Forgotpass))
+        sign_up_label = ttk.Button(login_frame, text="Don't have an account? Sign Up!",
+                                   command=lambda: Author.rase_frame(parent, Signup))
+
+        username_label.grid(row=0, column=0, pady=10, sticky="w")
+        username_entry.grid(row=0, column=1, pady=10)
+        password_label.grid(row=1, column=0, pady=10, sticky="w")
+        password_entry.grid(row=1, column=1, pady=10)
+        login_button.grid(row=2, column=0, columnspan=2, pady=10)
+        forgot_password_label.grid(row=3, column=0, columnspan=2, pady=5)
+        sign_up_label.grid(row=4, column=0, columnspan=2)
 
     def click_log(self):
         # username and password
@@ -52,6 +81,8 @@ class Login(ttk.Frame, Author):
             global table_name
             table_name = courser.fetchone()['userId']
             Author.destroy(self.parent)
+        else:
+            messagebox.showerror("Login", "Invalid Username or Password")
 
 
 class Signup(ttk.Frame, Author):
@@ -60,15 +91,37 @@ class Signup(ttk.Frame, Author):
         self.courser = None
         self.parent = parent
         super().__init__(container)
-        ttk.Label(self, text="Signin", font=('Times', '20')).pack()
-        self.sign_user_value = tk.StringVar(value="Vanshika")
-        self.sign_email_value = tk.StringVar(value="achourey09@gmail.com")
-        self.sign_pass_value = tk.StringVar(value="123456789")
+        self.sign_user_value = tk.StringVar()
+        self.sign_email_value = tk.StringVar()
+        self.sign_pass_value = tk.StringVar()
 
         # Sign up --- your code
+        canvas = tk.Canvas(self, width=500, height=450)
+        canvas.pack(fill="both", expand=True)
+        canvas.create_image(0, 0, image=parent.background_photo, anchor="nw")
 
-        ttk.Button(self, text="Go Back", command=lambda: Author.rase_frame(parent, Login)).pack()
-        ttk.Button(self, text="Sign in", command=lambda:  self.click_sign()).pack()
+        label_heading = ttk.Label(self, text="Sign Up", font=("Helvetica", 20, "bold"))
+        signup_frame = ttk.Frame(self, padding="10")
+        label_username = ttk.Label(signup_frame, text="Username: ")
+        entry_username = ttk.Entry(signup_frame, font=("Arial", 12), textvariable=self.sign_user_value)
+        label_email = ttk.Label(signup_frame, text="Email: ")
+        entry_email = ttk.Entry(signup_frame, font=("Arial", 12), textvariable=self.sign_email_value)
+        label_password = ttk.Label(signup_frame, text="Password: ")
+        entry_password = ttk.Entry(signup_frame, font=("Arial", 12), show="*", textvariable=self.sign_pass_value)
+        sign_up_button = ttk.Button(signup_frame, text="Sign Up", command=lambda: self.click_sign())
+        back_to_login_label = ttk.Button(signup_frame, text="Already have an account? Log in!", cursor="hand2",
+                                         command=lambda: Author.rase_frame(parent, Login))
+
+        label_heading.place(relx=0.5, rely=0.1, anchor=tk.CENTER)
+        signup_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        label_username.grid(row=0, column=0, pady=10, sticky="w")
+        entry_username.grid(row=0, column=1, pady=10)
+        label_email.grid(row=1, column=0, pady=10, sticky="w")
+        entry_email.grid(row=1, column=1, pady=10)
+        label_password.grid(row=2, column=0, pady=10, sticky="w")
+        entry_password.grid(row=2, column=1, pady=10)
+        sign_up_button.grid(row=3, column=0, columnspan=2, pady=10)
+        back_to_login_label.grid(row=5, column=0, columnspan=2)
 
     def click_sign(self):
         new_username = self.sign_user_value.get()
@@ -93,17 +146,23 @@ class Signup(ttk.Frame, Author):
         except pymysql.Error as e:
             print(f"Connection failed: {e}")
 
-        user_id = "van258"
+        no = random.randint(100,999)
+        user_id = random.choice(["asd","fsd","hdf","bre"," nmu"]) + str(no)
         self.courser = self.db.cursor()
-        # self.courser.execute("""CREATE TABLE '%s' ("SNo" int NOT NULL,"Date" date,"Note" varchar(250) NOT NULL,
-        #   "Type" varchar(125),"Mode" tinyint(1),"Amount" decimal(7,2) NOT NULL,PRIMARY KEY ("SNo"));""" % user_id)
+        self.courser.execute("""CREATE TABLE %s ("SNo" integer NOT NULL,
+          "Date" date,"Note" varchar(250) NOT NULL,
+          "Type" varchar(125),
+          "Mode" tinyint(1),
+          "Amount" decimal(7,2) NOT NULL,
+          PRIMARY KEY ("SNo"));""" % user_id)
 
-        # self.courser.execute("select max(SNo) from pro;")
-        # sno = self.courser.fetchone()['max(SNo)']+1
-        # new_user_row = (sno, user_id, new_username, new_password, "test@gmail.com")
-        # self.courser.execute("insert into pro(SNo, userId, userName, password, email) values(%s,%s,%s,%s,%s);",new_user_row)
-        # self.courser.execute("create user %s@%s identified by %s;", (new_username,'%', new_password))
-        # self.courser.execute("GRANT SELECT, INSERT ON money.%s TO %s@'%s';" % (user_id, new_username,'%'))
+        self.courser.execute("select max(SNo) from pro;")
+        sno = self.courser.fetchone()['max(SNo)']+1
+        new_user_row = (sno, user_id, new_username, new_password, new_email)
+        self.courser.execute("insert into pro(SNo, userId, userName, password, email) "
+                             "values(%s,%s,%s,%s,%s);",new_user_row)
+        self.courser.execute("create user %s@%s identified by %s;", (new_username,'%', new_password))
+        self.courser.execute("GRANT SELECT, INSERT ON money.%s TO %s@'%s';" % (user_id, new_username,'%'))
 
         # *messagebox
         print("new user is created.")
@@ -122,12 +181,32 @@ class Forgotpass(ttk.Frame, Author):
         super().__init__(container)
         self.parent = parent
         ttk.Label(self, text="forgot password", font=('Times', '20')).pack()
-        self.verify_user_value = tk.StringVar(value="Akshat")
-        self.verify_email_value = tk.StringVar(value="choureyakshat916@gmail.com")
+        self.verify_user_value = tk.StringVar()
+        self.verify_email_value = tk.StringVar()
 
         # forgot --- you code
+        bg_label = tk.Label(self, image=parent.background_photo)
+        bg_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        bg_label.image = parent.background_photo  # Keep a reference to avoid garbage collection
 
-        ttk.Button(self, text="Send Code", command=lambda: self.send_code(str(self.code))).pack()
+        # Frame with transparent background for input fields
+        forgot_frame = tk.Frame(self, bg="white", bd=5)
+        forgot_frame.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+        label_heading = ttk.Label(forgot_frame, text="Forgot Password", font=("Helvetica", 18, "bold"),
+                                  background="white")
+        username_label = ttk.Label(forgot_frame, text="Username:", background="white")
+        username_entry_fp = ttk.Entry(forgot_frame, font=("Arial", 12))
+        email_label = ttk.Label(forgot_frame, text="Email Address:", background="white")
+        email_entry = ttk.Entry(forgot_frame, font=("Arial", 12))
+        send_code_button = ttk.Button(forgot_frame, text="Send Code", command=lambda: self.send_code(str(self.code)))
+
+        label_heading.grid(row=0, column=0, columnspan=2, pady=10)
+        username_label.grid(row=1, column=0, pady=10, sticky="w")
+        username_entry_fp.grid(row=1, column=1, pady=10)
+        email_label.grid(row=2, column=0, pady=10, sticky="w")
+        email_entry.grid(row=2, column=1, pady=10)
+        send_code_button.grid(row=3, column=0, columnspan=2, pady=10)
 
     def send_code(self, code):
         to = self.verify_email_value.get()
@@ -135,53 +214,66 @@ class Forgotpass(ttk.Frame, Author):
         try:
             courser.execute("select email from pro where userName='%s';" % user)
         except None:
-            print("user is not present in database")
+            messagebox.showerror("Database", "User not found!")
             return
 
         if courser.fetchone()['email'] != to:
-            # *messagebox
-            print("user entered dint matches email")
+            messagebox.showerror("Error", "User entered dint matches email!")
             return
 
+        global curr_user
+        curr_user = user
         f = send_mail(to, "Your verification code is ", code)
         if f == 0:
             # *messagebox
-            print("Verification code has been sent to your user email address successfully.")
+            messagebox.showinfo("Success", "Verification code has been sent"
+                                           " to your user email address successfully.")
             Author.rase_frame(self.parent, Verify)
         else:
-            # *messagebox
-            print("Unable to send the email.")
-
+            messagebox.showerror("Error", "Unable to send the email!")
 
 class Verify(ttk.Frame, Author):
     def __init__(self, parent, container):
         super().__init__(container)
         self.parent = parent
-        ttk.Label(self, text="Verify", font=('Times', '20')).pack()
-        self.verify_code_value = tk.IntVar(value=Forgotpass.code)
+        self.verify_code_value = tk.IntVar()
 
         # verify --- your code
+        canvas = tk.Canvas(self, width=500, height=450)
+        canvas.pack(fill="both", expand=True)
+        canvas.create_image(0, 0, image=parent.background_photo, anchor="nw")
 
-        ttk.Button(self, text="verify", command=lambda: self.now_verify()).pack()
+        heading = ttk.Label(self, text="Verify your Email!", font=("Arial", 18, "bold"))
+        heading.place(relx=0.5, rely=0.1, anchor=tk.CENTER)
+
+        verify_f1 = ttk.Frame(self, padding="10")
+        verify_f1.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+        label1 = ttk.Label(verify_f1, text="The code has been sent to your email address.", font=("Arial", 15, "bold"))
+        label2 = ttk.Label(verify_f1, text="Check your inbox and enter verification code below ot verify.",
+                           font=("Arial", 13))
+        verify_entry = ttk.Entry(verify_f1, textvariable=self.verify_code_value)
+        submit_button = ttk.Button(verify_f1, text="Verify", width=15, command=lambda: self.now_verify())
+
+        label1.pack(pady=8, padx=2)
+        label2.pack(pady=8, padx=2)
+        verify_entry.pack(pady=8, padx=2)
+        submit_button.pack(pady=10)
 
     def now_verify(self):
         if self.verify_code_value.get() == Forgotpass.code:
             Author.rase_frame(self.parent, Login)
 
-            # print(Forgotpass.forgot_user)
-            # courser.execute("select email, password from pro where userName='%s';" % Forgotpass.forgot_user)
-            # email = courser.fetchone()['email']
-            # password = courser.fetchone()['password']
-            #
-            # send_mail(email,"your password", password)
-            # *messagebox
-            print("your password has been sent to your email address.")
+            courser.execute("select email, password from pro where userName='%s';" % curr_user)
+            asq = courser.fetchone()
+
+            send_mail(asq['email'], "your password: ", asq['password'])
+            messagebox.showinfo("your password has been sent to your email address.")
         else:
-            # *messagebox
-            print("Incorrect code entered.")
+            messagebox.showerror("Error", "Incorrect code entered!")
 
 
-def send_mail(to,subject, message):
+def send_mail(to, subject, message):
     g_username = os.environ.get('G_USERNAME')
     g_password = os.environ.get('G_PASSWORD')
 
@@ -204,6 +296,7 @@ def send_mail(to,subject, message):
 if __name__ == "__main__":
     courser = db.cursor()
     table_name = ""
+    curr_user = ""
 
     author = Author()
     author.mainloop()
