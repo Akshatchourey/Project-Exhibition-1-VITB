@@ -60,7 +60,7 @@ class Login(ttk.Frame, Author):
         login_button = ttk.Button(login_frame, text="Login", command=lambda: self.click_log())
         forgot_password_label = ttk.Button(login_frame, text="Forgot Password?",
                                            command=lambda: Author.rase_frame(parent, Forgotpass))
-        sign_up_label = ttk.Button(login_frame, text="Don't have an account? Sign Up!",
+        sign_up_label = ttk.Button(login_frame, text="Don't have an account?",
                                    command=lambda: Author.rase_frame(parent, Signup))
 
         username_label.grid(row=0, column=0, pady=10, sticky="w")
@@ -80,6 +80,9 @@ class Login(ttk.Frame, Author):
             courser.execute("select userId from pro where userName='%s'" % username)
             global table_name
             table_name = courser.fetchone()['userId']
+            row = (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), table_name)
+            courser.execute("update pro set lastLogin='%s' where userId='%s';" % row)
+            db.commit()
             Author.destroy(self.parent)
         else:
             messagebox.showerror("Login", "Invalid Username or Password")
@@ -147,7 +150,7 @@ class Signup(ttk.Frame, Author):
             print(f"Connection failed: {e}")
 
         no = random.randint(100,999)
-        user_id = random.choice(["asd","fsd","hdf","bre"," nmu"]) + str(no)
+        user_id = random.choice(["asd","fsd","hdf","bre"," nmu","oiu","asg"]) + str(no)
         self.courser = self.db.cursor()
         self.courser.execute("""CREATE TABLE %s ("SNo" integer NOT NULL,
           "Date" date,"Note" varchar(250) NOT NULL,
@@ -166,13 +169,11 @@ class Signup(ttk.Frame, Author):
 
         # *messagebox
         print("new user is created.")
-        # Author.withdraw(self.parent)
-        personalize = PersonalizePage()
+        Author.destroy(self.parent)
+        personalize = PersonalizePage(user_id)
         personalize.mainloop()
-        personalize.quit()
-        # query_save_personal = asd()
-        # print(query_save_personal)
-        # Author.deiconify(self.parent)
+        send_mail(new_email, "New Account", "Thank you for creating new account in our application.")
+        Author().mainloop()
 
 class Forgotpass(ttk.Frame, Author):
     code = random.randint(1000, 9999)
@@ -268,7 +269,7 @@ class Verify(ttk.Frame, Author):
             asq = courser.fetchone()
 
             send_mail(asq['email'], "your password: ", asq['password'])
-            messagebox.showinfo("your password has been sent to your email address.")
+            messagebox.showinfo("verification", "your password has been sent to your email address.")
         else:
             messagebox.showerror("Error", "Incorrect code entered!")
 

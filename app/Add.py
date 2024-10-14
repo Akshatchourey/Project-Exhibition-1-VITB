@@ -1,7 +1,10 @@
-from imports import tk
-from imports import ttk
-from imports import database
+from imports import os
+from imports import Client
+from imports import load_dotenv
+from imports import datetime, timedelta
+from imports import tk, ttk, messagebox
 
+from imports import db, database
 
 # courser = database().cursor()
 # This is the biggest and most important part...
@@ -44,7 +47,7 @@ class AddPage(ttk.Frame):
         amount_entry = ttk.Entry(add_f1, textvariable=amount_value)
 
         # griding add_f1 widgets
-        ttk.Label(add_f1, textvariable=self.no).grid(row=0, column=0,rowspan=2, sticky='ew')
+        ttk.Label(add_f1, font=('', 0, ''), width=0,textvariable=self.no).grid(row=0, column=0,rowspan=2, sticky='ew')
         date_entry.grid(row=0, column=1,rowspan=2, sticky='ew')
         note_entry.grid(row=0, column=2,rowspan=2, sticky='ew')
         mode_online.grid(row=0, column=3)
@@ -90,6 +93,8 @@ class AddPage(ttk.Frame):
         type_combo.bind('<<ComboboxSelected>>',
                         lambda event: self.show_data(
                             f"select * from %s where Type='{type_combo.get()}' order by Date desc;"))
+        sync = ttk.Button(add_f2, text="Sync", command=lambda: self.sync_data(), width=10)
+        sync.pack(side='left')
 
         # Creating tree view(Table) and setting initial properties of it
         self.tree = ttk.Treeview(self, columns=('sno', 'date', 'note', 'category', 'amount'), show='headings', height=5)
@@ -115,8 +120,7 @@ class AddPage(ttk.Frame):
         asq = [list(row.values()) for row in self.courser.fetchall()]
         i = 1
         for t in asq:
-            old_date = str(t[1])
-            new_date = old_date[8:]+"/"+old_date[5:7]+"/"+old_date[0:4]
+            new_date = t[1].strftime("%d/%m/%y")
             row = (i, new_date, t[2], t[3], t[5])
             if t[4]: self.tree.insert('', 'end', values=row, tags=('colour_blue',"tree_font",))
             else: self.tree.insert('', 'end', values=row, tags=("tree_font",))
@@ -131,3 +135,35 @@ class AddPage(ttk.Frame):
         database().commit()
         self.no.set(self.no.get() + 1)
         self.show_data("select * from %s order by Date desc;")
+
+    def sync_data(self):
+        courser = db.cursor()
+        courser.execute("select phoneNo,lastSync from pro where userId='%s';" % self.table)
+        asq = courser.fetchone()
+        phoneNo = asq['phoneNo']
+        date_after = asq['lastSync'] - timedelta(hours=5, minutes=30)
+        load_dotenv()
+        account_sid = os.environ.get('Twilio_sid')
+        auth_token = os.environ.get('Twilio_token')
+        client = Client(account_sid, auth_token)
+
+        messages = client.messages.list(date_sent_after=date_after, from_=f'whatsapp:{phoneNo}')
+        for msg in messages:
+            dates = msg.date_sent.strftime("%Y-%m-%d")
+            mess = msg.body
+            body = mess.split(" ")
+            mode = body[-2]
+            money = body[-1]
+            note = mess[:len(mess)-len(mode)-len(money)-2]
+            mode = 0 if mode == "onl" else 1
+            row = (self.table, self.no.get(), dates, note, "other", mode, int(money))
+            self.courser.execute("insert into %s values(%s,'%s','%s','%s', %s, %s);" % row)
+            self.no.set(self.no.get()+1)
+        database().commit()
+
+        time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        courser.execute("update pro set lastSync='%s' where userId='%s';" % (time, self.table))
+        db.commit()
+        self.show_data("select * from %s order by Date desc;")
+
+        messagebox.showinfo("Syncing", f"syncing successful with {len(messages)} more additions.")

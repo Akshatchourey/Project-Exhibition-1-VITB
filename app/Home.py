@@ -1,5 +1,4 @@
-from imports import tk
-from imports import ttk
+from imports import tk, ttk
 from imports import Image, ImageTk
 
 # This class only has image

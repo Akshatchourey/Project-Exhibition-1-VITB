@@ -41,7 +41,7 @@ class AnalysePage(ttk.Frame):
         x_axis, values = [], []
         data = self.courser.fetchall()
         x_axis = [i for i in range(len(data))]
-        for t in data: values.append(t[0])
+        for t in data: values.append(t["Amount"])
 
         self.plt.plot(x_axis, values, label=legend)
         self.plt.set_title("Graph")

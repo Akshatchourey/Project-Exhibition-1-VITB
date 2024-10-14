@@ -1,5 +1,7 @@
-from imports import tk
-from imports import ttk
+from io import BytesIO
+from imports import tk, ttk
+from imports import Image, ImageTk, ImageDraw
+from imports import db
 
 from Home import HomePage
 from Add import AddPage
@@ -19,6 +21,19 @@ class App(tk.Tk):
 
         style = ttk.Style()
         style.configure("TButton",font=('', 11), width=20)
+        courser = db.cursor()
+        courser.execute("select image from proImg where userId=%s", table)
+        bImg = courser.fetchone()['image']
+        print("fetching done")
+        # Image for profile page
+        image = Image.open(BytesIO(bImg)).resize((150, 150), Image.LANCZOS)
+        mask = Image.new("L", image.size, 0)
+        draw = ImageDraw.Draw(mask)
+        draw.ellipse((0, 0, 150, 150), fill=255)
+        masked_image = Image.new("RGBA", image.size)
+        masked_image.paste(image, (0, 0), mask)
+        self.photo_image = ImageTk.PhotoImage(masked_image)
+
         menu = ttk.Frame(self, borderwidth=4)
         menu.pack(side='left', fill='y')
 

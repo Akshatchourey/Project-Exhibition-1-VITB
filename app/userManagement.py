@@ -1,5 +1,5 @@
 import os
-
+from dotenv import load_dotenv
 import pymysql
 import tkinter as tk
 from tkinter import ttk
@@ -47,26 +47,28 @@ class Management(tk.Tk):
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
         canvas.config(yscrollcommand = scrollbar.set)
-        f1 = ttk.Frame(canvas)
-        canvas.create_window((0, 0), window=f1, anchor="nw")
+        self.f1 = ttk.Frame(canvas)
+        canvas.create_window((0, 0), window=self.f1, anchor="nw")
 
-        self.courser.execute("select userId,userName,email from pro;")
-        asq = [list(row.values()) for row in self.courser.fetchall()]
-
-        ttk.Label(f1, text="SNo").grid(row=0, column=0)
-        ttk.Label(f1, text="userId").grid(row=0, column=1)
-        ttk.Label(f1, text="userName").grid(row=0, column=2)
-        ttk.Label(f1, text="email").grid(row=0, column=3)
-        i = 1
-        for t in asq:
-            ttk.Label(f1, text=i).grid(row=i, column=0)
-            ttk.Label(f1, text=t[0]).grid(row=i, column=1)
-            ttk.Label(f1, text=t[1]).grid(row=i, column=2)
-            ttk.Label(f1, text=t[2]).grid(row=i, column=3, columnspan=2)
-            i += 1
+        ttk.Label(self.f1, text="SNo").grid(row=0, column=0)
+        ttk.Label(self.f1, text="userId").grid(row=0, column=1)
+        ttk.Label(self.f1, text="userName").grid(row=0, column=2)
+        ttk.Label(self.f1, text="email").grid(row=0, column=3)
+        self.show_users()
 
         canvas.update_idletasks()
         canvas.configure(scrollregion=canvas.bbox("all"))
+
+    def show_users(self):
+        self.courser.execute("select userId,userName,email from pro;")
+        asq = [list(row.values()) for row in self.courser.fetchall()]
+        i = 1
+        for t in asq:
+            ttk.Label(self.f1, text=i).grid(row=i, column=0)
+            ttk.Label(self.f1, text=t[0]).grid(row=i, column=1)
+            ttk.Label(self.f1, text=t[1]).grid(row=i, column=2)
+            ttk.Label(self.f1, text=t[2]).grid(row=i, column=3, columnspan=2)
+            i += 1
 
     def delete_user(self, user_id):
         try:
@@ -79,6 +81,9 @@ class Management(tk.Tk):
 
         print("you are so gon.",user_id)
         self.db.commit()
+        self.show_users()
+
+
 
 def login():
     root = tk.Tk()
@@ -125,6 +130,7 @@ def login_admin(root, username, password):
 
 
 if __name__ == "__main__":
+    load_dotenv()
     user = passw = ""
     login()
     management = Management(username=user, password=passw)
