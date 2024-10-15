@@ -89,8 +89,8 @@ Use sync button in add transition page to update entries. Thank you""",
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         row = (fName_value.get(), phone_value.get(), text_box,balanceOn_value.get(),
                balanceOf_value.get(), goal_value.get(), time, self.table)
-        courser.execute("update pro set fullName='%s', phoneNo='%s', bio='%s', balanceOn=%s,"
-                        "balanceOf=%s, goal=%s, lastSync='%s' where userId='%s';", row)
+        courser.execute("update pro set fullName=%s, phoneNo=%s, bio=%s, balanceOn=%s,"
+                        "balanceOf=%s, goal=%s, lastSync=%s where userId=%s;", row)
         if self.file.get() == "": self.file.set("testImage.jpg")
         img = open(self.file.get(), "rb").read()
         courser.execute("select max(SNo) from proImg;")
@@ -98,6 +98,6 @@ Use sync button in add transition page to update entries. Thank you""",
         courser.execute("insert into proImg values(%s,%s,%s);", (temp_no, self.table, img))
         db.commit()
 
-        print("personal data saved.")
+        print("Saving...personal data.")
         self.destroy()
         self.quit()

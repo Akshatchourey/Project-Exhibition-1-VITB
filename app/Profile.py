@@ -37,9 +37,11 @@ class ProfilePage(ttk.Frame):
         canvas.pack(side='left', anchor="nw", padx=5, pady=5)
         canvas.create_image(100, 100, image=parent.photo_image)
 
-        ttk.Label(f1, text=asq[0], font=('Times', 25)).pack(anchor='nw',pady=90)
-        ttk.Label(f1, text=asq[1], font=('Times', 17)).pack(side='left', anchor='nw',pady=1)
+        ttk.Label(f1, text=asq[0], font=('Times', 25)).pack(anchor='nw',pady=80)
+        ttk.Label(f1, text=asq[1] + ", ", font=('Times', 17)).pack(side='left', anchor='nw',fill=tk.X)
+        ttk.Label(f1, text=asq[8], font=('Times', 17)).pack(side='left', anchor='nw',fill=tk.X, expand=True)
         ttk.Label(f21, text="Bio").pack()
+        ttk.Label(f21, text=asq[7]).pack(fill=tk.X)
 
         ttk.Label(f22, text="Balance: ").grid(row=0, column=0)
         ttk.Label(f22, text=asq[2]+asq[3], foreground='blue').grid(row=0, column=1)

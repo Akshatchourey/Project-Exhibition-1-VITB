@@ -130,7 +130,6 @@ class Signup(ttk.Frame, Author):
         new_username = self.sign_user_value.get()
         new_email = self.sign_email_value.get()
         new_password = self.sign_pass_value.get()
-        Author.rase_frame(self.parent, Login)
         try:
             self.db = pymysql.connect(
                 charset="utf8mb4",
