@@ -16,6 +16,7 @@ class AddPage(ttk.Frame):
         super().__init__(container)
         self.table = table
         self.courser = database().cursor()
+        self.data = self.get_data()
         add_t = ttk.Label(self, text="Add Transactions", font=('Times', '20'))
         add_t.pack()
 
@@ -63,8 +64,7 @@ class AddPage(ttk.Frame):
         add_f2 = ttk.Frame(self)
         add_f2.pack()
 
-        refresh = ttk.Button(add_f2, text="Refresh Data",
-                             command=lambda:self.show_data("select * from %s order by Date desc;"))
+        refresh = ttk.Button(add_f2, text="Refresh Data", command=lambda:self.refresh())
         refresh.pack(side='left')
 
         # different qsl commands stored in dict
@@ -90,9 +90,7 @@ class AddPage(ttk.Frame):
         type_combo['values'] = types
         type_combo.set("Type Filters")
         type_combo.pack(side='left')
-        type_combo.bind('<<ComboboxSelected>>',
-                        lambda event: self.show_data(
-                            f"select * from %s where Type='{type_combo.get()}' order by Date desc;"))
+        type_combo.bind('<<ComboboxSelected>>', lambda event: self.filters(type_combo.get()))
         sync = ttk.Button(add_f2, text="Sync", command=lambda: self.sync_data(), width=10)
         sync.pack(side='left')
 
@@ -111,20 +109,38 @@ class AddPage(ttk.Frame):
         self.tree.tag_configure("colour_blue", foreground="blue")
         self.tree.tag_configure("tree_font", font='None 13')
 
-        self.show_data("select * from %s order by Date desc;")
+        self.show_data2(self.data)
+
+    def get_data(self):
+        self.courser.execute("select * from %s order by Date desc;" % self.table)
+        return [list(row.values()) for row in self.courser.fetchall()]
+
+    def refresh(self):
+        self.courser.execute("select * from %s order by Date desc;" % self.table)
+        self.data = [list(row.values()) for row in self.courser.fetchall()]
+        self.show_data2(self.data)
 
     # This function takes sql query and display one-by-one in tree view
     def show_data(self, query):
-        self.tree.delete(*self.tree.get_children())
         self.courser.execute(query % self.table)
         asq = [list(row.values()) for row in self.courser.fetchall()]
+        self.show_data2(asq)
+
+    def show_data2(self, data):
+        self.tree.delete(*self.tree.get_children())
         i = 1
-        for t in asq:
+        for t in data:
             new_date = t[1].strftime("%d/%m/%y")
             row = (i, new_date, t[2], t[3], t[5])
-            if t[4]: self.tree.insert('', 'end', values=row, tags=('colour_blue',"tree_font",))
+            if t[4]: self.tree.insert('', 'end', values=row, tags=('colour_blue', "tree_font",))
             else: self.tree.insert('', 'end', values=row, tags=("tree_font",))
             i += 1
+
+    def filters(self, name):
+        arr = []
+        for i in self.data:
+            if i[3] == name: arr.append(i)
+        self.show_data2(arr)
 
     # This function takes few data from placeholders of add_f1 and runs sql query for insertion.
     def add_data(self, date_value, note_value, type_value, mode_value, amount_value):
@@ -134,7 +150,7 @@ class AddPage(ttk.Frame):
         self.courser.execute(insert_query)
         database().commit()
         self.no.set(self.no.get() + 1)
-        self.show_data("select * from %s order by Date desc;")
+        self.refresh()
 
     def sync_data(self):
         courser = db.cursor()
@@ -151,6 +167,7 @@ class AddPage(ttk.Frame):
         for msg in messages:
             dates = msg.date_sent.strftime("%Y-%m-%d")
             mess = msg.body
+            if mess == "join fewer-hurry": continue
             body = mess.split(" ")
             mode = body[-2]
             money = body[-1]

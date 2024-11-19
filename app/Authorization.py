@@ -196,9 +196,9 @@ class Forgotpass(ttk.Frame, Author):
         label_heading = ttk.Label(forgot_frame, text="Forgot Password", font=("Helvetica", 18, "bold"),
                                   background="white")
         username_label = ttk.Label(forgot_frame, text="Username:", background="white")
-        username_entry_fp = ttk.Entry(forgot_frame, font=("Arial", 12))
+        username_entry_fp = ttk.Entry(forgot_frame, font=("Arial", 12), textvariable=self.verify_user_value)
         email_label = ttk.Label(forgot_frame, text="Email Address:", background="white")
-        email_entry = ttk.Entry(forgot_frame, font=("Arial", 12))
+        email_entry = ttk.Entry(forgot_frame, font=("Arial", 12), textvariable=self.verify_email_value)
         send_code_button = ttk.Button(forgot_frame, text="Send Code", command=lambda: self.send_code(str(self.code)))
 
         label_heading.grid(row=0, column=0, columnspan=2, pady=10)
@@ -305,3 +305,5 @@ if __name__ == "__main__":
     if table_name != "":
         app = App(table_name)
         app.mainloop()
+
+# App("aks159").mainloop()

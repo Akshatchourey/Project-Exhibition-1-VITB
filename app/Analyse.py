@@ -1,7 +1,8 @@
-from imports import ttk
-from imports import Figure
-from imports import FigureCanvasTkAgg
-from imports import database
+from imports import tk, ttk, database
+import numpy as np
+import seaborn as sns
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # This class is for analyzing the data.
 class AnalysePage(ttk.Frame):
@@ -9,43 +10,145 @@ class AnalysePage(ttk.Frame):
         super().__init__(container)
         self.table = table
         self.courser = database().cursor()
-        label = ttk.Label(self, text="Analyzing Page", font=('Times', '20'))
-        frame3 = ttk.Frame(self)
-        label.pack()
-        frame3.pack()
-        dect = {
-            "food":"select Amount from %s where Type ='food' order by Date;",
-            "small entries":"select Amount from %s where Amount>-500 and Amount<500 order by Date;",
-            "all entries":"select Amount from %s order by Date;"
-        }
-        ttk.Button(frame3, command=lambda: self.clear_graph(), text="Clear Graph").pack()
-        box1 = ttk.Button(frame3, text="food", command=lambda: self.graph(dect.get("food"), "food"))
-        box2 = ttk.Button(frame3, text="small entries", command=lambda: self.graph(dect.get("small entries"),"small entries"))
-        box3 = ttk.Button(frame3, text="all entries", command=lambda: self.graph(dect.get("all entries"),"all entries"))
-        box1.pack(side='left')
-        box2.pack(side='left')
-        box3.pack(side='left')
+        self.data = self.get_data()
+
+        menu = ttk.Frame(self)
+        menu.pack(side='top', fill='x')
+
+        home = ttk.Button(menu, text="Home Page", command=lambda: self.show_frame(AnalyseHome))
+        graph1 = ttk.Button(menu, text="Graph 1", command=lambda: self.show_frame(GraphP1))
+        graph2 = ttk.Button(menu, text="Graph 2", command=lambda: self.show_frame(GraphP2))
+        graph3 = ttk.Button(menu, text="Graph 3", command=lambda: self.show_frame(GraphP3))
+
+        home.pack(side='left')
+        graph1.pack(side='left')
+        graph2.pack(side='left')
+        graph3.pack(side='left')
+
+        container = ttk.Frame(self)
+        container.pack(side="top", expand=True, fill="both")
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        self.frames = {}
+
+        # first time creating frame for all graphs
+        for F in {AnalyseHome, GraphP1, GraphP2, GraphP3}:
+            frame = F(self, container)
+            self.frames[F] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        self.show_frame(AnalyseHome)
+
+    def show_frame(self, frame):
+        self.frames[frame].tkraise()
+
+    def get_data(self):
+        self.courser.execute("select * from %s order by Date desc;" % self.table)
+        return [list(row.values()) for row in self.courser.fetchall()]
+
+class AnalyseHome(ttk.Frame):
+    def __init__(self, parent, container):
+        super().__init__(container)
+        ttk.Label(self, text="Analyse page").pack()
+
+class GraphP1(ttk.Frame):
+    def __init__(self, parent, container):
+        super().__init__(container)
+        self.parent = parent
+        type_value = tk.StringVar(value="all entries")
+
+        frame1 = ttk.Frame(self)
+        frame1.pack()
+        ttk.Label(frame1, text="Graph page 1").pack()
+        ttk.Button(frame1, command=lambda: self.draw_graph(type_value.get()), text="Draw Graph").pack(side='left')
+        ttk.Button(frame1, command=lambda: self.clear_graph(), text="Clear Graph").pack(side='left')
+
+        types = ["food", "pocket money", "friend/partner", "stationary", "events", "personal", "shopping", "other", "all entries"]
+        type_entry = ttk.Combobox(frame1, textvariable=type_value)
+        type_entry['value'] = types
+        type_entry.pack()
 
         self.fig = Figure(figsize=(7, 6), dpi=110)
         self.canvas = FigureCanvasTkAgg(self.fig, master=self)
-        self.canvas.get_tk_widget().pack(expand=True,fill='both',padx=20, pady=20)
+        self.canvas.get_tk_widget().pack(expand=True, fill='both', padx=20, pady=20)
         self.plt = self.fig.add_subplot(111)
+        self.plt.set_title("Graph")
+        self.plt.set_ylabel("Amount")
+        self.plt.set_xlabel("Entries")
 
     def clear_graph(self):
         self.fig.clf()
         self.plt = self.fig.add_subplot(111)
-        self.canvas.draw()
-
-    def graph(self, query, legend):
-        self.courser.execute(query % self.table)
-        x_axis, values = [], []
-        data = self.courser.fetchall()
-        x_axis = [i for i in range(len(data))]
-        for t in data: values.append(t["Amount"])
-
-        self.plt.plot(x_axis, values, label=legend)
         self.plt.set_title("Graph")
         self.plt.set_ylabel("Amount")
         self.plt.set_xlabel("Entries")
+        self.canvas.draw()
+
+    def draw_graph(self, name):
+        if name == "all entries":
+            arr = [i[5] for i in self.parent.data]
+        else:
+            arr = []
+            for i in self.parent.data:
+                if i[3] == name: arr.append(i[5])
+
+        x_axis = np.arange(len(arr))
+        self.plt.plot(x_axis, arr, label=name)
         self.plt.legend()
         self.canvas.draw()
+
+
+class GraphP2(ttk.Frame):
+    def __init__(self, parent, container):
+        super().__init__(container)
+        ttk.Label(self, text="Spending by months", width=False).pack()
+
+        parent.courser.execute(f'''SELECT DATE_FORMAT(date, '%Y-%m') AS month,
+                                SUM(CASE WHEN Amount > 0 THEN Amount ELSE 0 END) AS positive_amount,
+                                SUM(CASE WHEN Amount < 0 THEN Amount ELSE 0 END) AS negative_amount
+                                FROM {parent.table} GROUP BY DATE_FORMAT(date, '%Y-%m') ORDER BY month''')
+
+        months, positive_amount, negative_amount = [],[],[]
+        for i in parent.courser.fetchall():
+            months.append(i["month"])
+            positive_amount.append(i["positive_amount"])
+            negative_amount.append(abs(i["negative_amount"]))
+
+        x_axis = np.arange(len(months))
+
+        fig = Figure(figsize=(7, 6), dpi=110)
+        canvas = FigureCanvasTkAgg(fig, master=self)
+        canvas.get_tk_widget().pack(expand=True, fill='both', padx=20, pady=20)
+        plt = fig.add_subplot(111)
+
+        bar_width = 0.35
+        opacity = 0.8
+        plt.bar(x_axis, positive_amount, bar_width, alpha=opacity, color='b', label="Positive Amounts")
+        plt.bar(x_axis + bar_width, negative_amount, bar_width, alpha=opacity, color='g', label="Negative Amounts")
+
+        plt.set_xlabel('Months')
+        plt.set_ylabel('Amount')
+        plt.set_xticks(x_axis + bar_width, months)
+        plt.legend()
+        canvas.draw()
+
+class GraphP3(ttk.Frame):
+    def __init__(self, parent, container):
+        super().__init__(container)
+        ttk.Label(self, text="Distribution of Data", width=False).pack()
+        #
+        parent.courser.execute("select Type, sum(Amount) as totalPrice "
+                               "from %s group by Type;" % parent.table)
+        data = [list(row.values()) for row in parent.courser.fetchall()]
+        labels = [i[0] for i in data]
+        total_price = [abs(i[1]) for i in data]
+
+        fig = Figure(figsize=(5, 4), dpi=110)
+        canvas = FigureCanvasTkAgg(fig, master=self)
+        canvas.get_tk_widget().pack(expand=True, fill='both', padx=10, pady=10)
+        plt = fig.add_subplot(111)
+        sns.set_style("whitegrid")
+        plt.pie(total_price, labels=labels, autopct='%1.1f%%', startangle=140)
+
+        canvas.draw()

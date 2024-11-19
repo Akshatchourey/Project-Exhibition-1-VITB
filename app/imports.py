@@ -11,9 +11,6 @@ from email.mime.text import MIMEText
 from PIL import Image, ImageTk, ImageDraw
 from email.mime.multipart import MIMEMultipart
 
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-
 load_dotenv()
 timeout = 10
 db = pymysql.connect(

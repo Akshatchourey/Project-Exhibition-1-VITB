@@ -37,7 +37,7 @@ class App(tk.Tk):
         menu = ttk.Frame(self, borderwidth=4)
         menu.pack(side='left', fill='y')
 
-        title = ttk.Label(menu, text="College Transactions", font="Helvetica 15 bold")
+        title = ttk.Label(menu, text="College Transactions", font="Helvetica 15 bold", width=False)
         home = ttk.Button(menu, text="Home Page", command=lambda: self.show_frame(HomePage))
         profile = ttk.Button(menu, text="Profile Page", command=lambda: self.show_frame(ProfilePage))
         add = ttk.Button(menu, text="Data Page", command=lambda: self.show_frame(AddPage))
