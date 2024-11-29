@@ -40,7 +40,7 @@ class Login(ttk.Frame, Author):
         super().__init__(container)
         self.parent = parent
         self.login_user_value = tk.StringVar()
-        self.login_pass_value = tk.StringVar()
+        self.login_pass_value = tk.StringVar(value="AKSHAT   chourey 09_09_2004_aksilikepython")
 
         # login --- your code
         canvas = tk.Canvas(self, width=500, height=450)
@@ -305,5 +305,3 @@ if __name__ == "__main__":
     if table_name != "":
         app = App(table_name)
         app.mainloop()
-
-# App("aks159").mainloop()

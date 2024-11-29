@@ -14,59 +14,83 @@ class PersonalizePage(tk.Tk):
         self.table = table
         self.title("Personalize Page")
         self.iconbitmap("logo.ico")
-        self.geometry("890x515+175+90")
+        self.geometry("890x570+175+90")
+        self.configure(bg="#eef2f7")
         self.rowconfigure((0,1), weight=1)
         self.columnconfigure((0,1), weight=1)
+
+        # Styles
         style = ttk.Style()
-        style.configure("TLabel", font=('', 12))
+        style.configure("TLabel", font=("Segoe UI", 12), background="#eef2f7", foreground="#333")
+        style.configure("TButton", font=("Segoe UI", 11), background="#0078D7", foreground="black")
+        style.map("TButton", background=[("active", "#005A9E")], foreground=[("active", "black")])
 
-        ttk.Label(self, text="Personalize Page", font=('Times', '20')).pack()
-        ttk.Label(self, text="Pl scan this qr code, send message to use our whatsapp services.").pack()
+        center_frame = tk.Frame(self, bg="#eef2f7")
+        center_frame.pack(expand=True, fill="both")
+        # Title
+        ttk.Label(center_frame,text="Personalize Page",font=("Times", 20, "bold"),anchor="center",background="#eef2f7").pack(pady=10)
+
+        ttk.Label(center_frame,text="Scan this QR code to send a message and use our WhatsApp services.",
+            anchor="center",wraplength=700,font=("Segoe UI", 11),background="#eef2f7",).pack(pady=5)
+
         # placeholders
-        person_f1 = ttk.Frame(self)
-        person_f2 = ttk.Frame(self)
-        person_f1.pack(side='left')
-        person_f2.pack()
-
-        self.file = tk.StringVar(value="")
+        self.file = tk.StringVar(value="No file selected")
         fName_value = tk.StringVar()
         phone_value = tk.StringVar(value="+91")
         balanceOn_value = tk.DoubleVar()
         balanceOf_value = tk.DoubleVar()
         goal_value = tk.IntVar()
+        gender_value = tk.StringVar(value="Select")
+        age_value = tk.IntVar()
 
+        # Main Frame for Content
+        main_frame = ttk.Frame(center_frame, padding=10)
+        main_frame.pack(padx=20, pady=20, expand=True)
+
+        left_frame = ttk.Frame(main_frame)
+        left_frame.grid(row=0, column=0, padx=20, sticky="n")
+
+        right_frame = ttk.Frame(main_frame)
+        right_frame.grid(row=0, column=1, padx=20, sticky="n")
+
+        # QR Code
         qr_image = Image.open("whatsapp QR.jpg").resize((200, 200), Image.LANCZOS)
         self.photo_image = ImageTk.PhotoImage(image=qr_image)
-        canvas = tk.Canvas(person_f1, width=200, height=200)
+        canvas = tk.Canvas(left_frame, width=200, height=200, bg="white", highlightthickness=0)
         canvas.create_image((100, 100), image=self.photo_image)
-        canvas.pack(anchor='center')
+        canvas.pack(pady=10)
+        ttk.Label(right_frame, text="Upload Photo:").grid(row=0, column=0, pady=8, sticky="w")
+        ttk.Button(right_frame, text="Upload", command=self.upload_file).grid(row=0, column=1, pady=8, padx=10, sticky="w")
+        ttk.Label(right_frame,textvariable=self.file,font=("Segoe UI", 9),
+                  foreground="#555").grid(row=0, column=2, padx=5, pady=8, sticky="w")
 
-        ttk.Button(person_f2, text="Upload photo", command=lambda: self.upload_file()).grid(row=0,column=0)
-        ttk.Label(person_f2, textvariable=self.file, width=20).grid(row=0, column=1)
-        ttk.Label(person_f2, text="Full Name: ").grid(row=1, column=0)
-        ttk.Entry(person_f2, textvariable=fName_value).grid(row=1, column=1)
-        ttk.Label(person_f2, text="Phone No: ").grid(row=2, column=0)
-        ttk.Entry(person_f2, textvariable=phone_value).grid(row=2, column=1)
-        ttk.Label(person_f2, text="Balance Online: ").grid(row=3, column=0)
-        ttk.Entry(person_f2, textvariable=balanceOn_value).grid(row=3, column=1)
-        ttk.Label(person_f2, text="Balance Offline: ").grid(row=4, column=0)
-        ttk.Entry(person_f2, textvariable=balanceOf_value).grid(row=4, column=1)
-        ttk.Label(person_f2, text="This month goal: ").grid(row=5, column=0)
-        ttk.Entry(person_f2, textvariable=goal_value).grid(row=5, column=1)
-        ttk.Label(person_f2, text="Bio: ").grid(row=6,column=0)
-        text_box = tk.Text(person_f2, width=45, height=10)
-        text_box.grid(row=7, column=0, columnspan=3)
+        # Input Layout
+        inputs = [
+            ("Full Name:", ttk.Entry(right_frame, textvariable=fName_value)),
+            ("Phone No:", ttk.Entry(right_frame, textvariable=phone_value)),
+            ("Balance Online:", ttk.Entry(right_frame, textvariable=balanceOn_value)),
+            ("Balance Offline:", ttk.Entry(right_frame, textvariable=balanceOf_value)),
+            ("Monthly Goal:", ttk.Entry(right_frame, textvariable=goal_value)),
+            ("Gender:", ttk.Combobox(right_frame, textvariable=gender_value,
+                                     values=["Male", "Female", "Other"],state="readonly")),
+            ("Age:", ttk.Entry(right_frame, textvariable=age_value)),
+        ]
 
-        ttk.Button(person_f2, text="Save", command=lambda: self.save_data(
-            fName_value,phone_value,balanceOn_value,balanceOf_value,goal_value,
-            text_box.get("1.0",'end-1c'))).grid(row=8, column=0, columnspan=2)
+        for idx, (label, widget) in enumerate(inputs):
+            ttk.Label(right_frame, text=label).grid(row=idx+1, column=0, pady=8, sticky="w")
+            widget.grid(row=idx+1, column=1, pady=8, padx=10, sticky="w")
+
+        # Save Button
+        ttk.Button(right_frame, text="Save Data",command=lambda: self.save_data(
+            fName_value, phone_value, balanceOn_value, balanceOf_value, goal_value, gender_value, age_value)
+                   ).grid(row=8, column=0, columnspan=2, pady=20)
 
     def upload_file(self):
         f_types = [('Jpg Files', '*.jpg'), ('Png files','*.png')]
         file = askopenfilename(filetypes=f_types)
         self.file.set(file)
 
-    def save_data(self,fName_value,phone_value,balanceOn_value,balanceOf_value,goal_value, text_box):
+    def save_data(self,fName_value,phone_value,balanceOn_value,balanceOf_value,goal_value, gender_value, age_value):
         # first message by twilio
         load_dotenv()
         account_sid = os.environ.get('Twilio_sid')
@@ -81,17 +105,22 @@ To add your transactions efficiently use the following formate:
 
 Ex- "english event" onl 250
 
+For correct functioning keep this in mind
+Money given --> -250
+Money get   -->  250
+
 Use sync button in add transition page to update entries. Thank you""",
             to=f'whatsapp:{phone_value.get()}'
         )
 
         courser = db.cursor()
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        row = (fName_value.get(), phone_value.get(), text_box,balanceOn_value.get(),
-               balanceOf_value.get(), goal_value.get(), time, self.table)
-        courser.execute("update pro set fullName=%s, phoneNo=%s, bio=%s, balanceOn=%s,"
+        row = (fName_value.get(), phone_value.get(), gender_value.get(), age_value.get(),
+               balanceOn_value.get(), balanceOf_value.get(), goal_value.get(), time, self.table)
+        courser.execute("update pro set fullName=%s, phoneNo=%s, gender=%s, age=%s, balanceOn=%s,"
                         "balanceOf=%s, goal=%s, lastSync=%s where userId=%s;", row)
-        if self.file.get() == "": self.file.set("testImage.jpg")
+
+        if self.file.get() == "No file selected": self.file.set("testImage.jpg")
         img = open(self.file.get(), "rb").read()
         courser.execute("select max(SNo) from proImg;")
         temp_no = courser.fetchone()['max(SNo)'] + 1

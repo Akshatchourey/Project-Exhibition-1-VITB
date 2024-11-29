@@ -14,6 +14,7 @@ from imports import db, database
 class AddPage(ttk.Frame):
     def __init__(self, parent, container, table):
         super().__init__(container)
+        self.parent = parent
         self.table = table
         self.courser = database().cursor()
         self.data = self.get_data()
@@ -149,38 +150,60 @@ class AddPage(ttk.Frame):
         insert_query = insert_query1 + f"STR_TO_DATE('{date_value.get()}','%d/%m/%Y')" + insert_query2
         self.courser.execute(insert_query)
         database().commit()
+
+        a = float(self.parent.onl_balance.get())
+        b = float(self.parent.off_balance.get())
+        c = float(self.parent.spent.get())
+        if amount_value.get() < 0: c += amount_value.get()  # if -ve increase spent
+        if mode_value.get() == 0: a += amount_value.get()  # append online amount
+        else: b += amount_value.get()  # append offline amount
+        db.cursor().execute("update pro set balanceOn=%s,balanceOf=%s,spent=%s where userId='%s';" % (a,b,c,self.table))
+
+        db.commit()
         self.no.set(self.no.get() + 1)
+        self.parent.get_balance()
         self.refresh()
 
     def sync_data(self):
+        load_dotenv()
         courser = db.cursor()
         courser.execute("select phoneNo,lastSync from pro where userId='%s';" % self.table)
         asq = courser.fetchone()
-        phoneNo = asq['phoneNo']
-        date_after = asq['lastSync'] - timedelta(hours=5, minutes=30)
-        load_dotenv()
+        phone_no, date_after = asq['phoneNo'], asq['lastSync'] - timedelta(hours=5, minutes=30, seconds=0)
+
         account_sid = os.environ.get('Twilio_sid')
         auth_token = os.environ.get('Twilio_token')
         client = Client(account_sid, auth_token)
 
-        messages = client.messages.list(date_sent_after=date_after, from_=f'whatsapp:{phoneNo}')
+        messages = client.messages.list(date_sent_after=date_after, from_=f'whatsapp:{phone_no}')
+        asq = []
         for msg in messages:
             dates = msg.date_sent.strftime("%Y-%m-%d")
             mess = msg.body
             if mess == "join fewer-hurry": continue
-            body = mess.split(" ")
-            mode = body[-2]
-            money = body[-1]
+            money = mess.split(" ")[-1]
+            mode = mess.split(" ")[-2]
             note = mess[:len(mess)-len(mode)-len(money)-2]
             mode = 0 if mode == "onl" else 1
-            row = (self.table, self.no.get(), dates, note, "other", mode, int(money))
-            self.courser.execute("insert into %s values(%s,'%s','%s','%s', %s, %s);" % row)
+            row = (self.table, self.no.get(), dates, note, "other", mode, float(money))
             self.no.set(self.no.get()+1)
-        database().commit()
+            asq.append(row)
+
+        a = float(self.parent.onl_balance.get())
+        b = float(self.parent.off_balance.get())
+        c = float(self.parent.spent.get())
+        for row in asq:
+            if row[6] < 0: c += row[6]
+            self.courser.execute("insert into %s values(%s,'%s','%s','%s', %s, %s);" % row)
+            if row[5] == 0: a += row[6]
+            else: b += row[6]
+
+        courser.execute("update pro set balanceOn=%s, balanceOf=%s, spent=%s where userId='%s';" % (a,b,c,self.table))
 
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         courser.execute("update pro set lastSync='%s' where userId='%s';" % (time, self.table))
-        db.commit()
-        self.show_data("select * from %s order by Date desc;")
 
+        db.commit()
+        self.refresh()
+        self.parent.get_balance()
         messagebox.showinfo("Syncing", f"syncing successful with {len(messages)} more additions.")
