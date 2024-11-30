@@ -3,6 +3,7 @@ from imports import Client
 from imports import load_dotenv
 from imports import datetime, timedelta
 from imports import tk, ttk, messagebox
+from tkcalendar import DateEntry
 
 from imports import db, database
 
@@ -27,7 +28,7 @@ class AddPage(ttk.Frame):
         temp_no = self.courser.fetchone()['max(SNo)']
         if temp_no is None: temp_no = 0
         self.no = tk.IntVar(value=temp_no + 1)
-        date_value = tk.StringVar(value="dd/mm/2024")
+        # date_value = tk.StringVar(value="dd/mm/2024")
         note_value = tk.StringVar(value="note")
         type_value = tk.StringVar(value="Category")
         mode_value = tk.BooleanVar()
@@ -40,7 +41,7 @@ class AddPage(ttk.Frame):
 
         # add_f1 widgets
         types = ["food","pocket money","friend/partner","stationary","events","personal","shopping","other"]
-        date_entry = ttk.Entry(add_f1, textvariable=date_value)
+        date_entry = DateEntry(add_f1,width=20, borderwidth=3, foreground='white', date_pattern="dd/MM/yyyy")
         note_entry = ttk.Entry(add_f1, textvariable=note_value)
         type_entry = ttk.Combobox(add_f1, textvariable=type_value)
         type_entry['value'] = types
@@ -49,7 +50,7 @@ class AddPage(ttk.Frame):
         amount_entry = ttk.Entry(add_f1, textvariable=amount_value)
 
         # griding add_f1 widgets
-        ttk.Label(add_f1, font=('', 0, ''), width=0,textvariable=self.no).grid(row=0, column=0,rowspan=2, sticky='ew')
+        ttk.Label(add_f1, font=('', 10, ''), width=0,textvariable=self.no).grid(row=0, column=0,rowspan=2, sticky='ew')
         date_entry.grid(row=0, column=1,rowspan=2, sticky='ew')
         note_entry.grid(row=0, column=2,rowspan=2, sticky='ew')
         mode_online.grid(row=0, column=3)
@@ -57,7 +58,7 @@ class AddPage(ttk.Frame):
         type_entry.grid(row=0, column=4,rowspan=2, sticky='ew')
         amount_entry.grid(row=0, column=5,rowspan=2, sticky='ew')
         add_data = ttk.Button(add_f1, text="Add Data",
-                              command=lambda: self.add_data(date_value,note_value,type_value,mode_value,amount_value))
+                              command=lambda: self.add_data(date_entry,note_value,type_value,mode_value,amount_value))
         add_data.grid(row=0, column=6, rowspan=2)
 
         show_t = ttk.Label(self, text="Show Transactions", font=('Times', '20'))
@@ -145,10 +146,9 @@ class AddPage(ttk.Frame):
 
     # This function takes few data from placeholders of add_f1 and runs sql query for insertion.
     def add_data(self, date_value, note_value, type_value, mode_value, amount_value):
-        insert_query1 = "insert into %s values(%s," % (self.table, self.no.get())
-        insert_query2 = ",'%s','%s',%s,%s);" % (note_value.get(), type_value.get(), mode_value.get(), amount_value.get())
-        insert_query = insert_query1 + f"STR_TO_DATE('{date_value.get()}','%d/%m/%Y')" + insert_query2
-        self.courser.execute(insert_query)
+        row = (self.table, self.no.get(),date_value.get_date(), note_value.get(), type_value.get(), mode_value.get(), amount_value.get())
+        query = "insert into %s values(%s,'%s','%s','%s',%s,%s);"
+        self.courser.execute(query % row)
         database().commit()
 
         a = float(self.parent.onl_balance.get())

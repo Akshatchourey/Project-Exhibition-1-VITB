@@ -1,4 +1,4 @@
-**Project name suggest**
+# TrackMySpend
 
 ### Problem Statement:
 The problem of overspending is generally faced by college students 
@@ -14,6 +14,23 @@ Can affect your physical and mental health, it is very important to find the sol
 ### Conclusion:
 Any student using this application can tell how much they have 
 spent in 4 years of their college journey.
+
+## Few Screenshots:
+### Authorization Pages
+![alt img](assets/1.png) ![alt img](assets/1-1.png)
+### Personalize Page
+![alt img](assets/2.jpg)
+### Home Page
+![alt img](assets/3.png)
+### Profile Page
+![alt img](assets/4.png)
+### Data Page
+![alt img](assets/5.png)
+### Analysis
+![alt img](assets/8.png)
+
+### Before downloading keep this thing in mind that you will be needing a .env file in 'app' folder which you can get from:
+[Download.env](https://drive.google.com/drive/folders/18nAlaC-MjI7LVTJ2bTpH14qzXZ9NkrDb)
 
 ## Download latest release:- 
 Follow setup instructions 1 or 2
@@ -34,6 +51,10 @@ Follow setup instructions 1 or 2
    pip install matplotlib
    pip install dotenv
    pip install python-dotenv
+   pip install cryptography
+   pip install seaborn
+   pip install pandas
+   pip install tkcalendar
 
 4. Run the application "Authorization.py" normally.
 

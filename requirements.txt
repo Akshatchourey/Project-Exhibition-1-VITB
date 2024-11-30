@@ -8,3 +8,5 @@ python-dotenv~=1.0.1
 cryptography~=43.0.1
 seaborn~=0.13.2
 pandas~=2.2.2
+mysql-connector-python~=9.1.0
+tkcalendar~=1.6.1

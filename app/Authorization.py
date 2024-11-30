@@ -40,7 +40,7 @@ class Login(ttk.Frame, Author):
         super().__init__(container)
         self.parent = parent
         self.login_user_value = tk.StringVar()
-        self.login_pass_value = tk.StringVar(value="AKSHAT   chourey 09_09_2004_aksilikepython")
+        self.login_pass_value = tk.StringVar()
 
         # login --- your code
         canvas = tk.Canvas(self, width=500, height=450)
@@ -70,6 +70,8 @@ class Login(ttk.Frame, Author):
         login_button.grid(row=2, column=0, columnspan=2, pady=10)
         forgot_password_label.grid(row=3, column=0, columnspan=2, pady=5)
         sign_up_label.grid(row=4, column=0, columnspan=2)
+
+        parent.bind('<Return>', lambda event: self.click_log())
 
     def click_log(self):
         # username and password

@@ -13,7 +13,7 @@ from Analyse import AnalysePage
 class App(tk.Tk):
     def __init__(self, table):
         super().__init__()
-        self.title("College Transactions")
+        self.title("TrackMySpend")
         self.iconbitmap("logo.ico")
         self.geometry("990x615+175+90")
         self.minsize(900,550)
@@ -29,13 +29,13 @@ class App(tk.Tk):
         menu = ttk.Frame(self, borderwidth=4)
         menu.pack(side='left', fill='y')
 
-        title = ttk.Label(menu, text="College Transactions", font="Helvetica 15 bold", width=False)
+        title = ttk.Label(menu, text="TrackMySpend", font="Helvetica 18 bold", width=False)
         home = ttk.Button(menu, text="Home Page", command=lambda: self.show_frame(HomePage))
         profile = ttk.Button(menu, text="Profile Page", command=lambda: self.show_frame(ProfilePage))
         add = ttk.Button(menu, text="Data Page", command=lambda: self.show_frame(AddPage))
         analyse = ttk.Button(menu, text="Analysis Page", command=lambda: self.show_frame(AnalysePage))
 
-        title.pack()
+        title.pack(pady=5)
         home.pack()
         profile.pack()
         add.pack()
