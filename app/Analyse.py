@@ -124,8 +124,8 @@ class GraphP2(ttk.Frame):
 
         bar_width = 0.35
         opacity = 0.8
-        plt.bar(x_axis, positive_amount, bar_width, alpha=opacity, color='b', label="Positive Amounts")
-        plt.bar(x_axis + bar_width, negative_amount, bar_width, alpha=opacity, color='g', label="Negative Amounts")
+        plt.bar(x_axis, positive_amount, bar_width, alpha=opacity, color='b', label="Credited Amounts")
+        plt.bar(x_axis + bar_width, negative_amount, bar_width, alpha=opacity, color='g', label="Debited Amounts")
 
         plt.set_xlabel('Months')
         plt.set_ylabel('Amount')
@@ -137,9 +137,7 @@ class GraphP3(ttk.Frame):
     def __init__(self, parent, container):
         super().__init__(container)
         ttk.Label(self, text="Distribution of Data", width=False).pack()
-        #
-        parent.courser.execute("select Type, sum(Amount) as totalPrice "
-                               "from %s group by Type;" % parent.table)
+        parent.courser.execute("select Type, sum(Amount) as totalPrice from %s group by Type;" % parent.table)
         data = [list(row.values()) for row in parent.courser.fetchall()]
         labels = [i[0] for i in data]
         total_price = [abs(i[1]) for i in data]

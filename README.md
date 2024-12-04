@@ -56,7 +56,7 @@ Follow setup instructions 1 or 2
    pip install pandas
    pip install tkcalendar
 
-4. Run the application "Authorization.py" normally.
+4. Run the application "main.py" normally.
 
 ## Setup Instructions(2):-
 1. Clone the repository:
@@ -75,6 +75,6 @@ Follow setup instructions 1 or 2
    
 4. Run the application:
    ```sh
-   python Authorization.py
+   python main.py
 
 ## Thank you.

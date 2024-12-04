@@ -125,7 +125,7 @@ class ProfilePage(ttk.Frame):
         if new_pass != confirm_pass:
             messagebox.showerror("Error", "Confirm password is not matching new Password")
             return
-        self.courser.execute("alter user %s@%s identified by %s;", (asq['userName'],'%', new_pass))
-        messagebox.showinfo("Saving..", "Password successfully saved.")
         self.courser.execute("update pro set password='%s' where userId='%s';" % (new_pass, self.table))
+        self.courser.execute("alter user %s@%s identified by %s;", (asq['userName'],'%', new_pass))
+        messagebox.showinfo("Saving..", "Password successfully saved.\nPl restart our app.")
         top.destroy()
