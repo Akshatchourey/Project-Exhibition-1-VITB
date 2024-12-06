@@ -7,6 +7,7 @@ from Home import HomePage
 from Add import AddPage
 from Profile import ProfilePage
 from Analyse import AnalysePage
+from feedback import FBPage
 
 # This class is responsible for creating main
 # window with menu buttons, container and 4 frames for 4 different pages
@@ -30,16 +31,18 @@ class App(tk.Tk):
         menu.pack(side='left', fill='y')
 
         title = ttk.Label(menu, text="TrackMySpend", font="Helvetica 18 bold", width=False)
-        home = ttk.Button(menu, text="Home Page", command=lambda: self.show_frame(HomePage))
-        profile = ttk.Button(menu, text="Profile Page", command=lambda: self.show_frame(ProfilePage))
-        add = ttk.Button(menu, text="Data Page", command=lambda: self.show_frame(AddPage))
-        analyse = ttk.Button(menu, text="Analysis Page", command=lambda: self.show_frame(AnalysePage))
+        home = ttk.Button(menu, text="Home Page", command=lambda: self.create_frame(HomePage))
+        profile = ttk.Button(menu, text="Profile Page", command=lambda: self.create_frame(ProfilePage))
+        add = ttk.Button(menu, text="Data Page", command=lambda: self.create_frame(AddPage))
+        analyse = ttk.Button(menu, text="Analysis Page", command=lambda: self.create_frame(AnalysePage))
+        feedback = ttk.Button(menu, text="FeedBack Page", command=lambda: self.create_frame(FBPage))
 
-        title.pack(pady=5)
+        title.pack(padx=2, pady=7)
         home.pack()
         profile.pack()
         add.pack()
         analyse.pack()
+        feedback.pack()
 
         frame2 = ttk.Frame(menu)
         frame2.pack(side='bottom', pady=40)
@@ -60,23 +63,22 @@ class App(tk.Tk):
         ttk.Label(frame2, text="Spent: ").grid(row=3, column=0)
         ttk.Label(frame2, textvariable=self.spent, foreground='red').grid(row=3, column=1)
 
-        container = ttk.Frame(self)
-        container.pack(side="top", expand=True, fill="both")
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        self.container = ttk.Frame(self)
+        self.container.pack(side="top", expand=True, fill="both")
+        self.container.grid_rowconfigure(0, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)
 
-        # first time creating frame and storing in frames list
+        # frame list
         self.frames = {}
+        self.create_frame(HomePage)
 
-        for F in {HomePage,ProfilePage,AddPage,AnalysePage}:
-            frame = F(self, container, table)
-            self.frames[F] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
+    # simple function create and lift the frame on top
+    def create_frame(self, frame):
+        if frame not in self.frames:
+            new_frame = frame(self, self.container, self.table)
+            self.frames[frame] = new_frame
+            new_frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame(HomePage)
-
-    # simple function to lift the frame on top
-    def show_frame(self, frame):
         self.frames[frame].tkraise()
 
     def get_balance(self):

@@ -15,20 +15,6 @@ Can affect your physical and mental health, it is very important to find the sol
 Any student using this application can tell how much they have 
 spent in 4 years of their college journey.
 
-## Few Screenshots:
-### Authorization Pages
-![alt img](assets/1.png) ![alt img](assets/1-1.png)
-### Personalize Page
-![alt img](assets/2.jpg)
-### Home Page
-![alt img](assets/3.png)
-### Profile Page
-![alt img](assets/4.png)
-### Data Page
-![alt img](assets/5.png)
-### Analysis
-![alt img](assets/8.png)
-
 ### Before downloading keep this thing in mind that you will be needing a .env file in 'app' folder which you can get from:
 [Download.env](https://drive.google.com/drive/folders/18nAlaC-MjI7LVTJ2bTpH14qzXZ9NkrDb)
 
@@ -43,18 +29,7 @@ Follow setup instructions 1 or 2
 
 3. Install all the required modules one by one in your command prompt:
    ```sh
-   pip install tk
-   pip install numpy
-   pip install pillow
-   pip install pymysql
-   pip install smtplib
-   pip install matplotlib
-   pip install dotenv
-   pip install python-dotenv
-   pip install cryptography
-   pip install seaborn
-   pip install pandas
-   pip install tkcalendar
+   pip install tk tkcalendar pillow pymysql smtplib numpy pandas seaborn matplotlib dotenv python-dotenv cryptography
 
 4. Run the application "main.py" normally.
 
@@ -78,3 +53,17 @@ Follow setup instructions 1 or 2
    python main.py
 
 ## Thank you.
+
+## Few Screenshots:
+### Authorization Pages
+![alt img](assets/1.png) ![alt img](assets/1-1.png)
+### Personalize Page
+![alt img](assets/2.jpg)
+### Home Page
+![alt img](assets/3.png)
+### Profile Page
+![alt img](assets/4.png)
+### Data Page
+![alt img](assets/5.png)
+### Analysis
+![alt img](assets/8.png)

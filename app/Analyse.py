@@ -15,32 +15,30 @@ class AnalysePage(ttk.Frame):
         menu = ttk.Frame(self)
         menu.pack(side='top', fill='x')
 
-        home = ttk.Button(menu, text="Home Page", command=lambda: self.show_frame(AnalyseHome))
-        graph1 = ttk.Button(menu, text="Graph 1", command=lambda: self.show_frame(GraphP1))
-        graph2 = ttk.Button(menu, text="Graph 2", command=lambda: self.show_frame(GraphP2))
-        graph3 = ttk.Button(menu, text="Graph 3", command=lambda: self.show_frame(GraphP3))
+        home = ttk.Button(menu, text="Home Page", command=lambda: self.create_frame(AnalyseHome))
+        graph1 = ttk.Button(menu, text="Graph 1", command=lambda: self.create_frame(GraphP1))
+        graph2 = ttk.Button(menu, text="Graph 2", command=lambda: self.create_frame(GraphP2))
+        graph3 = ttk.Button(menu, text="Graph 3", command=lambda: self.create_frame(GraphP3))
 
         home.pack(side='left')
         graph1.pack(side='left')
         graph2.pack(side='left')
         graph3.pack(side='left')
 
-        container = ttk.Frame(self)
-        container.pack(side="top", expand=True, fill="both")
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        self.container = ttk.Frame(self)
+        self.container.pack(side="top", expand=True, fill="both")
+        self.container.grid_rowconfigure(0, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
+        self.create_frame(AnalyseHome)
 
-        # first time creating frame for all graphs
-        for F in {AnalyseHome, GraphP1, GraphP2, GraphP3}:
-            frame = F(self, container)
-            self.frames[F] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
+    def create_frame(self, frame):
+        if frame not in self.frames:
+            new_frame = frame(self, self.container)
+            self.frames[frame] = new_frame
+            new_frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame(AnalyseHome)
-
-    def show_frame(self, frame):
         self.frames[frame].tkraise()
 
     def get_data(self):
