@@ -11,8 +11,8 @@ class FBPage(ttk.Frame):
 
         f1 = ttk.Frame(self, padding=10)
         f2 = ttk.Frame(self, padding=10, relief="solid", borderwidth=1)
-        f1.pack(side='left', fill='y', padx=10, pady=10)
-        f2.pack(side='right', fill='both', expand=True, padx=10, pady=10)
+        f2.pack(side='left', fill='both', expand=True, padx=10, pady=10)
+        f1.pack(side='right', fill='y', expand=True, padx=10, pady=10)
 
         ttk.Label(f1, text="Developer", font=('Times', '20', 'bold')).pack(padx=4, pady=5)
         developers = ["--Akshat Chourey--", "--Shorya Pathak--", "--Rudra Gupta--",

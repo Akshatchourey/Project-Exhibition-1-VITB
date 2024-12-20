@@ -48,7 +48,32 @@ class AnalysePage(ttk.Frame):
 class AnalyseHome(ttk.Frame):
     def __init__(self, parent, container):
         super().__init__(container)
-        ttk.Label(self, text="Analyse page").pack()
+        ttk.Label(self, text="linear regression graph", width=False).pack()
+
+        parent.courser.execute(f'''SELECT DATE_FORMAT(date, '%Y-%m') AS month,
+                                    SUM(CASE WHEN Amount < 0 THEN Amount ELSE 0 END) AS negative_amount
+                                        FROM {parent.table} GROUP BY DATE_FORMAT(date, '%Y-%m') ORDER BY month''')
+
+        negative_amount = []
+        for i in parent.courser.fetchall():
+            negative_amount.append(float(abs(i["negative_amount"])))
+
+        x = np.arange(len(negative_amount))
+        y = np.array(negative_amount)
+
+        fig = Figure(figsize=(7, 6), dpi=110)
+        canvas = FigureCanvasTkAgg(fig, master=self)
+        canvas.get_tk_widget().pack(expand=True, fill='both', padx=20, pady=20)
+        plt = fig.add_subplot(111)
+
+        m, b = np.polyfit(x, y, 1)
+        plt.scatter(x, y, label='Data points')
+        plt.plot(x, m * x + b, color='red', linestyle='--', label=f'y = {m:.1f}x + {b:.1f}')
+
+        plt.set_xlabel('Months')
+        plt.set_ylabel('Amount')
+        plt.legend()
+        canvas.draw()
 
 class GraphP1(ttk.Frame):
     def __init__(self, parent, container):

@@ -12,6 +12,7 @@ class ProfilePage(ttk.Frame):
         self.parent = parent
         self.courser.execute("select fullName,email,phoneNo,note,averageM,prediction from pro where userId=%s", table)
         asq = list(self.courser.fetchone().values())
+        self.prediction = tk.DoubleVar(value=0.00)
 
         # your --- code here
         self.rowconfigure(0, weight=1)
@@ -54,11 +55,14 @@ class ProfilePage(ttk.Frame):
         ttk.Label(f22, text="Current Average: ").grid(row=3, column=0)
         ttk.Label(f22, text=asq[4], foreground='blue').grid(row=3, column=1)
         ttk.Label(f22, text="Prediction: ").grid(row=4, column=0)
-        ttk.Label(f22, text=asq[5], foreground='blue').grid(row=4, column=1)
+        ttk.Label(f22, textvariable=self.prediction, foreground='blue').grid(row=4, column=1)
         ttk.Label(f22, text="",).grid(row=5, column=0)
         ttk.Label(f22, text="Set your new goal:").grid(row=6, column=0)
         ttk.Entry(f22, textvariable=parent.goal).grid(row=7, column=0)
         ttk.Button(f22, text="change", command=lambda:self.change_goal(), width=12).grid(row=7, column=1)
+
+        ttk.Label(f22, text="").grid(row=8, column=0)
+        ttk.Button(f22, text="Get Prediction", command=lambda:self.get_prediction(asq[5])).grid(row=9, column=0, columnspan=2)
 
     def logout(self):
         database().close()
@@ -71,6 +75,10 @@ class ProfilePage(ttk.Frame):
         db.commit()
         self.parent.get_balance()
         messagebox.showinfo("Goal changed", f"Goal changed\nYour new goal is {self.parent.goal.get()}.")
+
+    def get_prediction(self, amount):
+        messagebox.showinfo("Ai Initiated", "your predicted spending for next month is updated")
+        self.prediction.set(amount)
 
     def save_note(self, notes):
         self.courser.execute("update pro set note='%s' where userId='%s';" % (notes, self.table))
